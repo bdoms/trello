@@ -7,11 +7,10 @@ import sys
 # API example: https://github.com/sarumont/py-trello/blob/master/trello/__init__.py
 class Trello(object):
 
-    def __init__(self, api_key, oauth_token, board_id, list_id):
+    def __init__(self, api_key, oauth_token, board_id):
         self.api_key = api_key
         self.oauth_token = oauth_token
         self.board_id = board_id
-        self.list_id = list_id
         self.base_url = 'https://api.trello.com/1'
 
     def getLists(self):
@@ -29,12 +28,12 @@ class Trello(object):
                 break
         return tlist
 
-    def createList(self, name):
+    def createList(self, name, list_id):
         new_list = self.findList(name)
         if not new_list:
             # NOTE that because of Trello's weird positioning mechanics
             #      this may not always put the new list just to the right of the old one, but it'll be close
-            done_list = self.getList(self.list_id)
+            done_list = self.getList(list_id)
             params = {'name': name, 'pos': done_list['pos'] + 1}
             new_list = self.makeRequest('POST', '/boards/' + self.board_id + '/lists', params=params)
         return new_list
@@ -46,8 +45,8 @@ class Trello(object):
         params = {'text': comment}
         return self.makeRequest('POST', '/cards/' + card['id'] + '/actions/comments', params=params)
 
-    def getCards(self):
-        return self.makeRequest('GET', '/lists/' + self.list_id + '/cards')
+    def getCards(self, list_id):
+        return self.makeRequest('GET', '/lists/' + list_id + '/cards')
 
     def moveCard(self, card, list_id, pos=None):
         params = {'idList': list_id}
@@ -55,8 +54,8 @@ class Trello(object):
             params['pos'] = pos
         self.makeRequest('PUT', '/cards/' + card['id'], params=params)
 
-    def moveCards(self, to_list_id):
-        cards = self.getCards()
+    def moveCards(self, from_list_id, to_list_id):
+        cards = self.getCards(from_list_id)
         for card in cards:
             self.moveCard(card, to_list_id, pos=card['pos'])
 
