@@ -3,6 +3,11 @@ from urllib import urlencode
 from urllib2 import HTTPError, Request, urlopen
 import sys
 
+# a mapping of Trello colors to their hex codes
+COLORS = {'green': '#70b500', 'yellow': '#f2d600', 'orange': '#ff9f1a',
+    'red': '#eb5a46', 'purple': '#c377e0', 'blue': '#0079bf', 'sky': '#00c2e0',
+    'lime': '#51e898', 'pink': '#ff78cb', 'black': '#4d4d4d', 'default': '#b6bbbf'}
+
 
 # API example: https://github.com/sarumont/py-trello/blob/master/trello/__init__.py
 class Trello(object):
@@ -53,11 +58,13 @@ class Trello(object):
         if pos:
             params['pos'] = pos
         self.makeRequest('PUT', '/cards/' + card['id'], params=params)
+        return card
 
     def moveCards(self, from_list_id, to_list_id):
         cards = self.getCards(from_list_id)
         for card in cards:
             self.moveCard(card, to_list_id, pos=card['pos'])
+        return cards
 
     def makeRequest(self, method, path, params=None):
         if not params:
