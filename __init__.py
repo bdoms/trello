@@ -46,9 +46,22 @@ class Trello(object):
     def getCard(self, card_number):
         return self.makeRequest('GET', '/boards/' + self.board_id + '/cards/' + card_number)
 
+    def getActions(self, card):
+        return self.makeRequest('GET', '/cards/' + card['id'] + '/actions')
+
+    def getComments(self, card):
+        actions = self.getActions(card)
+        return [action for action in actions if action['type'] == 'commentCard']
+
     def addComment(self, card, comment):
         params = {'text': comment}
         return self.makeRequest('POST', '/cards/' + card['id'] + '/actions/comments', params=params)
+
+    def deleteComments(self, comments):
+        for comment in comments:
+            card_id = comment['data']['card']['id']
+            action_id = comment['id']
+            self.makeRequest('DELETE', '/cards/' + card_id + '/actions/' + action_id + '/comments')
 
     def getCards(self, list_id):
         return self.makeRequest('GET', '/lists/' + list_id + '/cards')
@@ -77,11 +90,11 @@ class Trello(object):
 
         if method == 'GET':
             url += '?' + urlencode(params)
-        elif method in ['POST', 'PUT']:
+        elif method in ['DELETE', 'POST', 'PUT']:
             data = urlencode(params)
 
         request = Request(url)
-        if method == 'PUT':
+        if method in ['DELETE', 'PUT']:
             request.get_method = lambda: method
 
         try:

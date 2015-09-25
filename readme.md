@@ -53,7 +53,7 @@ but easy to get via the API, so I built a helper function.
 To get the ID, simply call the provided `trello.py` file from the command line with the following arguments:
 
 ```bash
-python trello.py api_key oauth_token board_id list_name
+python __init__.py api_key oauth_token board_id list_name
 ```
 
 Note that `list_name` is the case sensitive display name at the top of the list.
