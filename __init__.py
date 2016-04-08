@@ -1,7 +1,13 @@
 import json
-from urllib import urlencode
-from urllib2 import HTTPError, Request, urlopen
 import sys
+
+try:
+    from urllib import urlencode
+    from urllib2 import HTTPError, Request, urlopen
+except ImportError:
+    from urllib.error import HTTPError
+    from urllib.parse import urlencode
+    from urllib.request import Request, urlopen
 
 # a mapping of Trello colors to their hex codes
 COLORS = {'green': '#70b500', 'yellow': '#f2d600', 'orange': '#ff9f1a',
@@ -91,7 +97,7 @@ class Trello(object):
         if method == 'GET':
             url += '?' + urlencode(params)
         elif method in ['DELETE', 'POST', 'PUT']:
-            data = urlencode(params)
+            data = urlencode(params).encode('utf-8')
 
         request = Request(url)
         if method in ['DELETE', 'PUT']:
@@ -103,23 +109,23 @@ class Trello(object):
             else:
                 response = urlopen(request)
         except HTTPError as e:
-            print e
-            print e.read()
+            print(e)
+            print(e.read())
             result = None
         else:
-            result = json.loads(response.read())
+            result = json.loads(response.read().decode('utf-8'))
 
         return result
 
 
 if __name__ == '__main__':
     if len(sys.argv) != 5:
-        print 'Wrong number of arguments. Need api_key, oauth_token, board_id and list_name.'
+        print('Wrong number of arguments. Need api_key, oauth_token, board_id and list_name.')
         sys.exit()
     filename, api_key, oauth_token, board_id, list_name = sys.argv
     client = Trello(api_key, oauth_token, board_id)
     tlist = client.findList(list_name)
     if tlist:
-        print 'List ID: ' + tlist['id']
+        print('List ID: ' + tlist['id'])
     else:
-        print 'List not found.'
+        print('List not found.')
