@@ -31,13 +31,11 @@ class Trello(object):
         return self.makeRequest('GET', '/lists/' + list_id)
 
     def findList(self, name):
-        tlist = None
         lists = self.getLists()
         for l in lists:
             if l['name'] == name:
-                tlist = l
-                break
-        return tlist
+                return l
+        return None
 
     def createList(self, name, list_id):
         new_list = self.findList(name)
